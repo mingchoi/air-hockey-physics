@@ -1,17 +1,18 @@
 (function(){
 
 
+  var keys = {};
   var stage = new createjs.Stage("canvas");
   createjs.Ticker.setFPS(60);
   var drawArea = new createjs.Shape();
 
 
-  // init variable
+  // init variables for rendering
   var player = new createjs.Shape();
   var ball = new createjs.Shape();
   var enemy = new createjs.Shape();
 
-    // for C++
+  // variables for C++
   var tableX = 0;
   var tableY = 0;
   var tableWidth = 400;
@@ -29,6 +30,7 @@
   var malletRadius = 30;
   var playerX = 200;
   var playerY = 500;
+  var playerSpeed = 5;
   var ballX = 200;
   var ballY = 300;
   var enemyX = 200;
@@ -44,6 +46,7 @@
   // init function
   var init = function(){
 
+    // init UI
     drawArea.graphics.setStrokeStyle(1).beginStroke("#dddddd")
       .moveTo(0, 300).lineTo(400, 300)
       .drawCircle(200, 300, 80)
@@ -67,13 +70,23 @@
     enemy.y = 100;
     stage.addChild(enemy);
 
+    // key capture callback
+    document.onkeydown = keydown;
+    document.onkeyup = keyup;
   }
 
   var update = function(){
 
     // update input
-    setPlayerPosition(stage.mouseX, stage.mouseY);
-
+    //setPlayerPosition(stage.mouseX, stage.mouseY);
+    if(keys[37])
+      setPlayerPosition(playerX - playerSpeed, playerY);
+    if(keys[38])
+      setPlayerPosition(playerX, playerY - playerSpeed);
+    if(keys[39])
+      setPlayerPosition(playerX + playerSpeed, playerY);
+    if(keys[40])
+      setPlayerPosition(playerX, playerY + playerSpeed);
     // update enemy
     enemyX = 200 + Math.sin(new Date().getTime()/500) * 100;
 
@@ -123,19 +136,8 @@
     }
 
     // collision with mallet
-    /*
-    if(distance(playerX, playerY, ballX, ballY) < malletRadius + ballRadius){
-      var angle = Math.atan2(playerY - ballY, playerX - ballX) + Math.PI;
-      ballVX = ballForce * Math.cos(angle);
-      ballVY = ballForce * Math.sin(angle);
-    }
-    */
     collisionWithMallet(playerX, playerY, ballX, ballY);
     collisionWithMallet(enemyX, enemyY, ballX, ballY);
-
-
-
-
 
 
     ballX = newX;
@@ -143,6 +145,8 @@
   }
 
 
+  // check the ball go into which hole
+  // 0 = none, 1 = enemy hole, 2 = player hole
   var ballInHole = function(x, y){
     if(x > enemyHoleX && x < enemyHoleX + holeWidth && y > enemyHoleY && y < enemyHoleY + holeHeight){
         return 1;
@@ -154,6 +158,7 @@
   }
   
 
+  // collision between player or enemy mallet to the ball
   var collisionWithMallet = function(x1, y1, x2, y2){
     if(distance(x1, y1, x2, y2) < malletRadius + ballRadius){
       var angle = Math.atan2(y1 - y2, x1 - x2) + Math.PI;
@@ -163,34 +168,50 @@
   }
 
 
-
+  // move player based on mouse position
+  // clamped in the player's area
   var setPlayerPosition = function(x, y){
-    playerX = clamp(stage.mouseX, tableX + malletRadius, tableX + tableWidth - malletRadius);
-    playerY = clamp(stage.mouseY, tableY + malletRadius + tableHeight*0.5, tableY + tableHeight - malletRadius);
+    playerX = clamp(x, tableX + malletRadius, tableX + tableWidth - malletRadius);
+    playerY = clamp(y, tableY + malletRadius + tableHeight*0.5, tableY + tableHeight - malletRadius);
   }
 
+  // clamp the value between min and max
   var clamp = function(value, min, max) {
     return Math.min(Math.max(value, min), max);
   };
 
+  // calculate distrance
   var distance = function(x1, y1, x2, y2){
     var dx = x2 - x1;
     var dy = y2 - y1;
     return dx / Math.cos(Math.atan2(dy, dx));
   };
 
+  // callback for key status
+  var keydown = function(e){
+    keys[e.keyCode] = true;
+  }
 
+  var keyup = function(e){
+    keys[e.keyCode] = false;
+  }
 
-
-  init();
-  // Tick
-  createjs.Ticker.addEventListener("tick", handleTick);
-  function handleTick(event) {
-
+  // main loop for the game
+  var handleTick = function(event) {
     update();
-
     stage.update();
   }
+
+
+
+
+
+
+  // start program
+  init();
+  // update event
+  createjs.Ticker.addEventListener("tick", handleTick);
+
 
   
 
