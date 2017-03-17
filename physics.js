@@ -78,15 +78,15 @@
   var update = function(){
 
     // update input
-    //setPlayerPosition(stage.mouseX, stage.mouseY);
-    if(keys[37])
+    if(keys[37])  // left
       setPlayerPosition(playerX - playerSpeed, playerY);
-    if(keys[38])
+    if(keys[38])  // top
       setPlayerPosition(playerX, playerY - playerSpeed);
-    if(keys[39])
+    if(keys[39])  // right
       setPlayerPosition(playerX + playerSpeed, playerY);
-    if(keys[40])
+    if(keys[40])  // down
       setPlayerPosition(playerX, playerY + playerSpeed);
+
     // update enemy
     enemyX = 200 + Math.sin(new Date().getTime()/500) * 100;
 
