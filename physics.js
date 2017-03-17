@@ -156,7 +156,7 @@
 
   var collisionWithMallet = function(x1, y1, x2, y2){
     if(distance(x1, y1, x2, y2) < malletRadius + ballRadius){
-      var angle = Math.atan2(y1 - y2, x1 - y2) + Math.PI;
+      var angle = Math.atan2(y1 - y2, x1 - x2) + Math.PI;
       ballVX = ballForce * Math.cos(angle);
       ballVY = ballForce * Math.sin(angle);
     }
